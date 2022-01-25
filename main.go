@@ -35,12 +35,16 @@ func run(args []string) error {
 	if err != nil {
 		return fmt.Errorf("decoding src image: %w", err)
 	}
-	rgbaImg, ok := img.(*image.NRGBA)
-	if !ok {
-		return fmt.Errorf("image is not NRGBA format: %T", img)
+	rgbaImg := image.NewNRGBA(img.Bounds())
+	rect := img.Bounds()
+	for y := rect.Min.Y; y < rect.Max.Y; y++ {
+		for x := rect.Min.X; x < rect.Max.X; x++ {
+			rgbaImg.Set(x, y, img.At(x, y))
+		}
 	}
 	var (
-		quality  = float32(1.0)
+		quality = float32(1.0)
+		// BUG: turning this off leads to divide by zero.
 		lossless = int32(1)
 		// out buffer to contain webp data.
 		out *byte = nil
@@ -68,6 +72,9 @@ func run(args []string) error {
 	)
 	if size == 0 {
 		return fmt.Errorf("encoding webp image: size %d", size)
+	}
+	if out == nil {
+		return fmt.Errorf("failed to allocate memory; probably errored")
 	}
 	if err := os.WriteFile("out.webp", libc.GoBytes(uintptr(unsafe.Pointer(out)), int(size)), 0644); err != nil {
 		return fmt.Errorf("writing out webp image: %w", err)
