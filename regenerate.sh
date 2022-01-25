@@ -22,5 +22,5 @@ make distclean || true
     --disable-wic \
     --disable-shared
 ccgo -compiledb cdb.json make
-CC=$(which gcc) ccgo -pkgname main -trace-translation-units -o ../libwebp.go cdb.json src/.libs/libwebp.a
-gofmt -s -w ../libwebp.go
+CC=$(which gcc) ccgo -pkgname lib -trace-translation-units -o ../lib/libwebp.go cdb.json src/.libs/libwebp.a
+gofmt -s -w ../lib/libwebp.go
