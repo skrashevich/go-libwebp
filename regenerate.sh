@@ -3,7 +3,7 @@
 set -eux
 
 cd ./c-lib/
-make distclean
+make distclean || true
 ./autogen.sh
 ./configure \
     --disable-libwebpmux \

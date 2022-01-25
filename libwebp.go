@@ -168,12 +168,20 @@ const ( /* backward_references_enc.h:213:1: */
 	kLZ77Box      = 4
 )
 
-// Alpha related constants.
+//------------------------------------------------------------------------------
 
-// Mux related constants.
-
-// Maximum chunk payload is such that adding the header and padding won't
-// overflow a uint32_t.
+// Copyright 2012 Google Inc. All Rights Reserved.
+//
+// Use of this source code is governed by a BSD-style license
+// that can be found in the COPYING file in the root of the source
+// tree. An additional intellectual property rights grant can be found
+// in the file PATENTS. All contributing project authors may
+// be found in the AUTHORS file in the root of the source tree.
+// -----------------------------------------------------------------------------
+//
+//  Internal header for constants related to WebP file format.
+//
+// Author: Urvang (urvang@google.com)
 
 // The maximum allowed limit is 11.
 
@@ -207,7 +215,18 @@ const ( /* vp8i_enc.h:42:1: */ // Rate-distortion optimization levels
 	RD_OPT_TRELLIS_ALL = 3
 )
 
-//------------------------------------------------------------------------------
+// Copyright 2011 Google Inc. All Rights Reserved.
+//
+// Use of this source code is governed by a BSD-style license
+// that can be found in the COPYING file in the root of the source
+// tree. An additional intellectual property rights grant can be found
+// in the file PATENTS. All contributing project authors may
+// be found in the AUTHORS file in the root of the source tree.
+// -----------------------------------------------------------------------------
+//
+// Bit writing and boolean coder
+//
+// Author: Skal (pascal.massimino@gmail.com)
 
 // Copyright 2011 Google Inc. All Rights Reserved.
 //
@@ -243,6 +262,155 @@ const ( /* vp8li_enc.h:39:1: */
 	kEncoderNearLossless = 2
 	kEncoderPalette      = 3
 )
+
+//------------------------------------------------------------------------------
+
+// Copyright 2011 Google Inc. All Rights Reserved.
+//
+// Use of this source code is governed by a BSD-style license
+// that can be found in the COPYING file in the root of the source
+// tree. An additional intellectual property rights grant can be found
+// in the file PATENTS. All contributing project authors may
+// be found in the AUTHORS file in the root of the source tree.
+// -----------------------------------------------------------------------------
+//
+// Multi-threaded worker
+//
+// Author: Skal (pascal.massimino@gmail.com)
+
+// src/webp/config.h.  Generated from config.h.in by configure.
+// src/webp/config.h.in.  Generated from configure.ac by autoheader.
+
+// Define if building universal (internal helper macro)
+// #undef AC_APPLE_UNIVERSAL_BUILD
+
+// Set to 1 if __builtin_bswap16 is available
+
+// Set to 1 if __builtin_bswap32 is available
+
+// Set to 1 if __builtin_bswap64 is available
+
+// Define to 1 if you have the <cpu-features.h> header file.
+// #undef HAVE_CPU_FEATURES_H
+
+// Define to 1 if you have the <dlfcn.h> header file.
+
+// Define to 1 if you have the <GLUT/glut.h> header file.
+// #undef HAVE_GLUT_GLUT_H
+
+// Define to 1 if you have the <GL/glut.h> header file.
+// #undef HAVE_GL_GLUT_H
+
+// Define to 1 if you have the <inttypes.h> header file.
+
+// Define to 1 if you have the <OpenGL/glut.h> header file.
+// #undef HAVE_OPENGL_GLUT_H
+
+// Have PTHREAD_PRIO_INHERIT.
+// #undef HAVE_PTHREAD_PRIO_INHERIT
+
+// Define to 1 if you have the <shlwapi.h> header file.
+// #undef HAVE_SHLWAPI_H
+
+// Define to 1 if you have the <stdint.h> header file.
+
+// Define to 1 if you have the <stdio.h> header file.
+
+// Define to 1 if you have the <stdlib.h> header file.
+
+// Define to 1 if you have the <strings.h> header file.
+
+// Define to 1 if you have the <string.h> header file.
+
+// Define to 1 if you have the <sys/stat.h> header file.
+
+// Define to 1 if you have the <sys/types.h> header file.
+
+// Define to 1 if you have the <unistd.h> header file.
+
+// Define to 1 if you have the <wincodec.h> header file.
+// #undef HAVE_WINCODEC_H
+
+// Define to 1 if you have the <windows.h> header file.
+// #undef HAVE_WINDOWS_H
+
+// Define to the sub-directory where libtool stores uninstalled libraries.
+
+// Name of package
+
+// Define to the address where bug reports for this package should be sent.
+
+// Define to the full name of this package.
+
+// Define to the full name and version of this package.
+
+// Define to the one symbol short name of this package.
+
+// Define to the home page for this package.
+
+// Define to the version of this package.
+
+// Define to necessary symbol if this constant uses a non-standard name on
+//    your system.
+// #undef PTHREAD_CREATE_JOINABLE
+
+// Define to 1 if all of the C90 standard headers exist (not just the ones
+//    required in a freestanding environment). This macro is provided for
+//    backward compatibility; new code need not use it.
+
+// Version number of package
+
+// Set to 1 if GIF library is installed
+// #undef WEBP_HAVE_GIF
+
+// Set to 1 if OpenGL is supported
+// #undef WEBP_HAVE_GL
+
+// Set to 1 if JPEG library is installed
+// #undef WEBP_HAVE_JPEG
+
+// Set to 1 if NEON is supported
+// #undef WEBP_HAVE_NEON
+
+// Set to 1 if runtime detection of NEON is enabled
+// #undef WEBP_HAVE_NEON_RTCD
+
+// Set to 1 if PNG library is installed
+// #undef WEBP_HAVE_PNG
+
+// Set to 1 if SDL library is installed
+// #undef WEBP_HAVE_SDL
+
+// Set to 1 if SSE2 is supported
+// #undef WEBP_HAVE_SSE2
+
+// Set to 1 if SSE4.1 is supported
+// #undef WEBP_HAVE_SSE41
+
+// Set to 1 if TIFF library is installed
+// #undef WEBP_HAVE_TIFF
+
+// Enable near lossless encoding
+
+// Undefine this to disable thread support.
+// #undef WEBP_USE_THREAD
+
+// Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
+//    significant byte first (like Motorola and SPARC, unlike Intel).
+// #  undef WORDS_BIGENDIAN
+
+// Copyright 2010 Google Inc. All Rights Reserved.
+//
+// Use of this source code is governed by a BSD-style license
+// that can be found in the COPYING file in the root of the source
+// tree. An additional intellectual property rights grant can be found
+// in the file PATENTS. All contributing project authors may
+// be found in the AUTHORS file in the root of the source tree.
+// -----------------------------------------------------------------------------
+//
+//  Common types + memory wrappers
+//
+// Author: Skal (pascal.massimino@gmail.com)
 
 // State of the worker thread object
 const ( /* thread_utils.h:28:1: */
@@ -27746,7 +27914,7 @@ __17:
 	*(*int32)(unsafe.Pointer(bp + 20 /* best_idx2 */)) = (*HistogramPair)(unsafe.Pointer((*HistoQueue)(unsafe.Pointer(bp /* &histo_queue */)).queue)).idx2
 
 	// Pop best_idx2 from mappings.
-	mapping_index = bsearch(tls, bp+20, mappings, uint64(*(*int32)(unsafe.Pointer(num_used))),
+	mapping_index = libc.Xbsearch(tls, bp+20, mappings, uint64(*(*int32)(unsafe.Pointer(num_used))),
 		uint64(unsafe.Sizeof(int32(0))), *(*uintptr)(unsafe.Pointer(&struct {
 			f func(*libc.TLS, uintptr, uintptr) int32
 		}{PairComparison})))
