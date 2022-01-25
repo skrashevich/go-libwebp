@@ -82,6 +82,14 @@ func run(args []string) error {
 //
 // Input data is expected to be sorted low to high, and contain i32.
 //
+// Assuming i32 is technically eroneous and we should use the predicate
+// function to capture type information to keep this function data agnostic.
+// However it might be better to simply implement a Go idiomatic function
+// that doesn't operate on raw memory.
+//
+// Given that this function is used exactly once and the data used is i32
+// this works.
+//
 //       key: raw pointer to object that serves as key
 //      base: raw pointer to first element in array
 //  elements: number of elements in array
