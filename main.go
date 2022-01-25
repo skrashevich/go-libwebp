@@ -91,21 +91,18 @@ func run(args []string) error {
 func bsearch(tls *libc.TLS, key, base uintptr, elements, size uint64, predicate uintptr) uintptr {
 	var (
 		// This conversion from uintptr to unsafe.Pointer may actually be valid based
-		// on the codebase using uintptr exclusively, the memory is not GC'd like standard Go.
-		k       int32   = *(*int32)(unsafe.Pointer(key))
-		data            = libc.GoBytes(base, int(elements*size))
-		numbers []int32 = make([]int32, 0)
+		// on the codebase using uintptr exclusively, the memory is not GC'd like standard Go
+		// but rather allocated with `libc.Alloc`.
+		k    int32 = *(*int32)(unsafe.Pointer(key))
+		data       = libc.GoBytes(base, int(elements*size))
 	)
-	for ii := uint64(0); ii < uint64(len(data)); ii += size {
-		numbers = append(numbers, int32(binary.LittleEndian.Uint32(data[ii:ii+size])))
-	}
 	// Linear search for exact match.
-	for ii, n := range numbers {
-		ii := ii
+	for ii := uint64(0); ii < uint64(len(data)); ii += size {
+		n := int32(binary.LittleEndian.Uint32(data[ii : ii+size]))
 		if n == k {
 			// return the base pointer offset by the number of bytes
 			// at which the value exists.
-			return base + uintptr(ii*4)
+			return base + uintptr(ii)
 		}
 	}
 	// return the base memory offset if we didn't find a match. May not
