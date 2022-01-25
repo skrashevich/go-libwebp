@@ -5,7 +5,9 @@ in the hope to bring webp codec into Go space.
 
 `go run . megopher.png` 
 
-Can consume JPEG and PNG images. 
+Can consume JPEG and PNG images.
+
+Status: Experimental
 
 ## Notes
 
@@ -19,3 +21,9 @@ Can consume JPEG and PNG images.
 
 This repo represents a joint effort between Chris Waldon (~whereswaldon) and myself.
 Thanks Chris for figuring out the build process for compiling libwebp to Go!
+
+## Todo
+
+- [ ] high level tests for various image formats
+- [ ] porcelain wrapper package to integrate with image.Decode
+- [ ] build script for recompiling from upstream
