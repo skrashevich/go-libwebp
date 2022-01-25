@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	image.RegisterFormat("webp", "RIFF", Decode, DecodeConfig)
+	image.RegisterFormat("webp", "RIFF????WEBP", Decode, DecodeConfig)
 }
 
 // Encode an image into webp with default settings.
@@ -33,7 +33,11 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 
 // Encoder implements webp encoding of an image.
 type Encoder struct {
-	Quality  float32
+	// Quality is in the range (0,1]. Values outside of this
+	// range will be treated as 1.
+	Quality float32
+	// Lossless indicates whether to use the lossless compression
+	// strategy. If true, the Quality field is ignored.
 	Lossless bool
 }
 
@@ -41,7 +45,7 @@ type Encoder struct {
 func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
-	if enc.Quality == 0.0 {
+	if enc.Quality <= 0.0 || enc.Quality > 1 {
 		enc.Quality = 1.0
 	}
 	rgbaImage := image.NewRGBA(m.Bounds())
