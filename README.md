@@ -3,7 +3,7 @@
 This is a [`ccgo`-based](https://pkg.go.dev/modernc.org/ccgo/v3) translation from [libwebp](https://github.com/webmproject/libwebp/)
 in the hope to bring webp codec into Go space.
 
-`go run . megopher.png` 
+`go run ./cmd ./cmd/megopher.png` 
 
 Can consume JPEG and PNG images.
 
