@@ -16,9 +16,29 @@ func init() {
 	image.RegisterFormat("webp", "RIFF????WEBP", Decode, DecodeConfig)
 }
 
+// EncodeOption configures the encoder.
+type EncodeOption func(*Encoder)
+
+// Quality in the range (0,1].
+func Quality(q float32) EncodeOption {
+	return func(enc *Encoder) {
+		enc.Quality = q
+	}
+}
+
+// Lossless will ignore quality.
+func Lossless() EncodeOption {
+	return func(enc *Encoder) {
+		enc.Lossless = true
+	}
+}
+
 // Encode an image into webp with default settings.
-func Encode(w io.Writer, m image.Image) error {
+func Encode(w io.Writer, m image.Image, opt ...EncodeOption) error {
 	var enc Encoder
+	for _, op := range opt {
+		op(&enc)
+	}
 	return enc.Encode(w, m)
 }
 
