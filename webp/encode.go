@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"io"
-	"runtime"
 	"unsafe"
 
 	"git.sr.ht/~jackmordaunt/go-libwebp/lib"
@@ -49,8 +48,6 @@ type Encoder struct {
 
 // Encode specified image as webp to w.
 func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
-	runtime.LockOSThread()
-	defer runtime.UnlockOSThread()
 	if enc.Quality <= 0.0 || enc.Quality > 1 {
 		enc.Quality = 1.0
 	}
@@ -62,11 +59,12 @@ func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 		}
 	}
 	var (
+		tls = libc.NewTLS()
 		// out buffer to contain webp data.
 		out *byte = nil
 	)
 	size := lib.Encode(
-		libc.NewTLS(),
+		tls,
 		uintptr(unsafe.Pointer(&rgbaImage.Pix[0])),
 		int32(rect.Dx()),
 		int32(rect.Dy()),
@@ -85,6 +83,7 @@ func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 		boolToInt32(enc.Lossless),
 		uintptr(unsafe.Pointer(&out)),
 	)
+	defer lib.WebPFree(tls, uintptr(unsafe.Pointer(out)))
 	if size == 0 {
 		return fmt.Errorf("encoding webp image: size %d", size)
 	}
