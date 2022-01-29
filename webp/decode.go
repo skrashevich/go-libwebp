@@ -1,16 +1,19 @@
 package webp
 
 import (
-	"fmt"
 	"image"
 	"io"
+
+	stdwebp "golang.org/x/image/webp"
 )
 
-// Decode a webp into an image.
+// Decode reads a WEBP image from r and returns it as an image.Image.
 func Decode(r io.Reader) (image.Image, error) {
-	return nil, fmt.Errorf("unimplemented")
+	return stdwebp.Decode(r)
 }
 
+// DecodeConfig returns the color model and dimensions of a WEBP image without
+// decoding the entire image.
 func DecodeConfig(r io.Reader) (image.Config, error) {
-	return image.Config{}, fmt.Errorf("unimplemented")
+	return stdwebp.DecodeConfig(r)
 }

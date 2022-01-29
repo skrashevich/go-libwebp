@@ -4,6 +4,8 @@ go 1.17
 
 require modernc.org/libc v1.14.5
 
+require golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
+
 require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
