@@ -59,10 +59,11 @@ func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 		}
 	}
 	var (
-		tls = libc.NewTLS()
 		// out buffer to contain webp data.
 		out *byte = nil
 	)
+	tls := libc.NewTLS()
+	defer tls.Close()
 	size := lib.Encode(
 		tls,
 		uintptr(unsafe.Pointer(&rgbaImage.Pix[0])),
