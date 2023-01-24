@@ -1,6 +1,6 @@
 module git.sr.ht/~jackmordaunt/go-libwebp
 
-go 1.17
+go 1.19
 
 require modernc.org/libc v1.14.5
 
