@@ -88,7 +88,7 @@ func (enc *Encoder) encode(w io.Writer, m *image.RGBA) error {
 		)),
 		// quality for libwebp is [0,100].
 		float32(enc.Quality*100),
-		boolToInt32(enc.Lossless),
+		libc.Bool32(enc.Lossless),
 		uintptr(unsafe.Pointer(&out)),
 	)
 	defer lib.WebPFree(tls, uintptr(unsafe.Pointer(out)))
@@ -102,13 +102,6 @@ func (enc *Encoder) encode(w io.Writer, m *image.RGBA) error {
 		return fmt.Errorf("writing webp data: %w", err)
 	}
 	return nil
-}
-
-func boolToInt32(b bool) int32 {
-	if b {
-		return 1
-	}
-	return 0
 }
 
 // unmanage takes a Go byte slice and returns a copy of it backed by
