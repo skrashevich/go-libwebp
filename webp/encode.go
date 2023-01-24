@@ -29,12 +29,13 @@ func Quality(q float32) EncodeOption {
 	}
 }
 
+// FIXME: lossless errors out so it's disabled until fixed.
 // Lossless will ignore quality.
-func Lossless() EncodeOption {
-	return func(enc *Encoder) {
-		enc.Lossless = true
-	}
-}
+//func Lossless() EncodeOption {
+//	return func(enc *Encoder) {
+//		enc.Lossless = true
+//	}
+//}
 
 // Encoder implements webp encoding of an image.
 type Encoder struct {
