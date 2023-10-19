@@ -101,6 +101,7 @@ func encode(enc *Encoder, w io.Writer, m *image.RGBA) error {
 	)
 
 	defer lib.WebPFree(tls, enc.out)
+
 	if size == 0 {
 		return fmt.Errorf("encoding webp image: size %d", size)
 	}
