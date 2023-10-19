@@ -44,6 +44,37 @@ func TestSmoke(t *testing.T) {
 	}
 }
 
+func TestLossless(t *testing.T) {
+	m, err := png.Decode(bytes.NewReader(goldenIn))
+	if err != nil {
+		t.Fatalf("decoding image: %v", err)
+	}
+
+	buf := bytes.NewBuffer(nil)
+
+	if err := Encode(buf, m, Lossless()); err != nil {
+		t.Fatalf("encoding webp: %v", err)
+	}
+
+	if err := os.WriteFile(filepath.Join("testdata", "golden-got.webp"), buf.Bytes(), 0o655); err != nil {
+		t.Errorf("writing output png: %v", err)
+	}
+
+	out, err := Decode(buf)
+	if err != nil {
+		t.Fatalf("decoding webp: %v", err)
+	}
+
+	outb := out.Bounds()
+	for xx := outb.Min.X; xx < outb.Max.X; xx++ {
+		for yy := outb.Min.Y; yy < outb.Max.Y; yy++ {
+			if out.At(xx, yy) != m.At(xx, yy) {
+				t.Errorf("color mismatch after lossless encode: (%d, %d)", xx, yy)
+			}
+		}
+	}
+}
+
 func FuzzEncode(f *testing.F) {
 	f.Add(uint16(0), uint16(0), uint16(0), uint16(0), int64(0), float32(0))
 	f.Add(uint16(0), uint16(0), uint16(1), uint16(1), int64(1), float32(1))
