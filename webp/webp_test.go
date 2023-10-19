@@ -6,6 +6,7 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
@@ -44,14 +45,20 @@ func TestSmoke(t *testing.T) {
 }
 
 func FuzzEncode(f *testing.F) {
-	f.Add(uint16(0), uint16(0), uint16(0), uint16(0), uint8(0), uint8(0), uint8(0), uint8(0), float32(0))
-	f.Add(uint16(0), uint16(0), uint16(1), uint16(1), uint8(1), uint8(1), uint8(1), uint8(1), float32(1))
-	f.Add(uint16(0), uint16(0), uint16(1), uint16(1), uint8(1), uint8(1), uint8(1), uint8(1), float32(0.5))
-	f.Add(uint16(0), uint16(0), uint16(100), uint16(100), uint8(100), uint8(50), uint8(50), uint8(50), float32(0.75))
-	f.Fuzz(func(t *testing.T, x0, y0, x1, y1 uint16, r, g, b, a uint8, quality float32) {
+	f.Add(uint16(0), uint16(0), uint16(0), uint16(0), int64(0), float32(0))
+	f.Add(uint16(0), uint16(0), uint16(1), uint16(1), int64(1), float32(1))
+	f.Add(uint16(0), uint16(0), uint16(1), uint16(1), int64(2), float32(0.5))
+	f.Add(uint16(0), uint16(0), uint16(100), uint16(100), int64(3), float32(0.75))
+	f.Fuzz(func(t *testing.T, x0, y0, x1, y1 uint16, seed int64, quality float32) {
+		rng := rand.New(rand.NewSource(seed))
 		m := image.NewNRGBA(image.Rect(int(x0), int(y0), int(x1), int(y1)))
 		for x := x0; x < x1; x += 1 {
 			for y := y0; y < y1; y += 1 {
+				colors := rng.Uint32()
+				r := uint8(colors)
+				g := uint8(colors >> 8)
+				b := uint8(colors >> 16)
+				a := uint8(colors >> 24)
 				m.Set(int(x), int(y), color.RGBA{R: r, G: g, B: b, A: a})
 			}
 		}
@@ -65,7 +72,7 @@ func FuzzEncode(f *testing.F) {
 		}
 		buf := bytes.NewBuffer(nil)
 		if err := Encode(buf, m, Quality(quality)); err != nil {
-			t.Errorf("error: %v (x0: %d, y0: %d, x1: %d, y1: %d) (r: %d, g: %d, b: %d, a: %d)", err, x0, y0, x1, y1, r, g, b, a)
+			t.Errorf("error: %v (x0: %d, y0: %d, x1: %d, y1: %d)", err, x0, y0, x1, y1)
 		}
 	})
 }
