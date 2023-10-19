@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"runtime"
 	"unsafe"
 
 	"git.sr.ht/~jackmordaunt/go-libwebp/lib"
@@ -35,13 +36,12 @@ func Quality(q float32) EncodeOption {
 	}
 }
 
-// FIXME: lossless errors out so it's disabled until fixed.
 // Lossless will ignore quality.
-//func Lossless() EncodeOption {
-//	return func(enc *Encoder) {
-//		enc.Lossless = true
-//	}
-//}
+func Lossless() EncodeOption {
+	return func(enc *Encoder) {
+		enc.Lossless = true
+	}
+}
 
 // Encoder implements webp encoding of an image.
 type Encoder struct {
@@ -51,11 +51,6 @@ type Encoder struct {
 	// Lossless indicates whether to use the lossless compression
 	// strategy. If true, the Quality field is ignored.
 	Lossless bool
-
-	// out pointer contains the output memory address from webp.
-	// Must be a field because stack variables are optimized out
-	// by the runtime.
-	out uintptr
 }
 
 // Encode specified image as webp to w.
@@ -82,6 +77,13 @@ func (enc *Encoder) encode(w io.Writer, m *image.RGBA) error {
 }
 
 func encode(enc *Encoder, w io.Writer, m *image.RGBA) error {
+	var out uintptr
+	outp := &out
+
+	p := runtime.Pinner{}
+	p.Pin(outp)
+	defer p.Unpin()
+
 	tls := libc.NewTLS()
 	defer tls.Close()
 
@@ -106,21 +108,20 @@ func encode(enc *Encoder, w io.Writer, m *image.RGBA) error {
 		// quality for libwebp is [0,100].
 		float32(enc.Quality*100),
 		libc.Bool32(enc.Lossless),
-		uintptr(unsafe.Pointer(&enc.out)),
+		uintptr(unsafe.Pointer(outp)),
 	)
 
-	defer lib.WebPFree(tls, enc.out)
+	defer lib.WebPFree(tls, out)
 
 	if size == 0 {
 		return fmt.Errorf("encoding webp image: size %d", size)
 	}
 
-	if enc.out == 0 {
+	if out == 0 {
 		return fmt.Errorf("failed to allocate memory; probably errored")
 	}
 
-	data := libc.GoBytes(enc.out, int(size))
-	if _, err := w.Write(data); err != nil {
+	if _, err := w.Write(libc.GoBytes(out, int(size))); err != nil {
 		return fmt.Errorf("writing webp data: %w", err)
 	}
 
