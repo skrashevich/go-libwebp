@@ -58,6 +58,9 @@ func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 	if enc.Quality <= 0.0 || enc.Quality > 1 {
 		enc.Quality = 1.0
 	}
+	if rgba, ok := m.(*image.RGBA); ok {
+		return enc.encode(w, rgba)
+	}
 	rgba := image.NewRGBA(m.Bounds())
 	b := m.Bounds()
 	for y := b.Min.Y; y < b.Max.Y; y++ {
