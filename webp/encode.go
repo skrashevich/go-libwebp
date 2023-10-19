@@ -45,9 +45,15 @@ type Encoder struct {
 	// Lossless indicates whether to use the lossless compression
 	// strategy. If true, the Quality field is ignored.
 	Lossless bool
+
+	// out pointer contains the output memory address from webp.
+	// Must be a field because stack variables are optimized out
+	// by the runtime.
+	out uintptr
 }
 
 // Encode specified image as webp to w.
+// Not threadsafe.
 func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 	if enc.Quality <= 0.0 || enc.Quality > 1 {
 		enc.Quality = 1.0
@@ -63,14 +69,16 @@ func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 }
 
 func (enc *Encoder) encode(w io.Writer, m *image.RGBA) error {
-	var (
-		// out buffer to contain webp data.
-		out *byte = nil
-	)
+	return encode(enc, w, m)
+}
+
+func encode(enc *Encoder, w io.Writer, m *image.RGBA) error {
 	tls := libc.NewTLS()
 	defer tls.Close()
+
 	buf, free := unmanage(tls, m.Pix)
 	defer free()
+
 	size := lib.Encode(
 		tls,
 		buf,
@@ -89,18 +97,23 @@ func (enc *Encoder) encode(w io.Writer, m *image.RGBA) error {
 		// quality for libwebp is [0,100].
 		float32(enc.Quality*100),
 		libc.Bool32(enc.Lossless),
-		uintptr(unsafe.Pointer(&out)),
+		uintptr(unsafe.Pointer(&enc.out)),
 	)
-	defer lib.WebPFree(tls, uintptr(unsafe.Pointer(out)))
+
+	defer lib.WebPFree(tls, enc.out)
 	if size == 0 {
 		return fmt.Errorf("encoding webp image: size %d", size)
 	}
-	if out == nil {
+
+	if enc.out == 0 {
 		return fmt.Errorf("failed to allocate memory; probably errored")
 	}
-	if _, err := w.Write(libc.GoBytes(uintptr(unsafe.Pointer(out)), int(size))); err != nil {
+
+	data := libc.GoBytes(enc.out, int(size))
+	if _, err := w.Write(data); err != nil {
 		return fmt.Errorf("writing webp data: %w", err)
 	}
+
 	return nil
 }
 
