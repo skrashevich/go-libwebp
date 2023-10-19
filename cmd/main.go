@@ -4,10 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"image"
+	"image/png"
 	"os"
+	"strings"
 
 	_ "image/jpeg"
-	"image/png"
+
 	_ "image/png"
 
 	"git.sr.ht/~jackmordaunt/go-libwebp/webp"
@@ -16,10 +18,15 @@ import (
 func main() {
 	if err := run(os.Args[1:]); err != nil {
 		fmt.Printf("error: %v\n", err)
+		os.Exit(1)
 	}
 }
 
 func run(args []string) error {
+	if len(args) == 0 || isHelp(args[0]) {
+		fmt.Printf("Usage: specify command [encode, decode]\n")
+		return nil
+	}
 	if len(args) < 1 {
 		return fmt.Errorf("not enough arguments")
 	}
@@ -31,6 +38,10 @@ func run(args []string) error {
 	default:
 		return fmt.Errorf("unknown command: %q", args[0])
 	}
+}
+
+func isHelp(s string) bool {
+	return strings.HasPrefix(s, "-h")
 }
 
 func encodeWebp(args []string) error {
@@ -71,9 +82,7 @@ func encodeWebp(args []string) error {
 }
 
 func decodeWebp(args []string) error {
-	var (
-		output string
-	)
+	var output string
 	cli := flag.NewFlagSet("decode", flag.ExitOnError)
 	cli.StringVar(&output, "o", "out.png", "path to output file")
 	if err := cli.Parse(args); err != nil {
