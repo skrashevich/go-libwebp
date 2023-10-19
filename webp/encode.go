@@ -24,6 +24,12 @@ type EncodeOption func(*Encoder)
 
 // Quality in the range (0,1].
 func Quality(q float32) EncodeOption {
+	if q <= 0 {
+		q = 0.1
+	}
+	if q > 1 {
+		q = 1
+	}
 	return func(enc *Encoder) {
 		enc.Quality = q
 	}
