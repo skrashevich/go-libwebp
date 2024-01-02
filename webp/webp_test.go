@@ -80,7 +80,10 @@ func FuzzEncode(f *testing.F) {
 		}
 		buf := bytes.NewBuffer(nil)
 		if err := Encode(buf, m, Quality(quality)); err != nil {
-			t.Errorf("error: %v (x0: %d, y0: %d, x1: %d, y1: %d)", err, x0, y0, x1, y1)
+			t.Errorf("encode error: %v (x0: %d, y0: %d, x1: %d, y1: %d)", err, x0, y0, x1, y1)
+		}
+		if _, err := Decode(buf); err != nil {
+			t.Errorf("decode error: %v (x0: %d, y0: %d, x1: %d, y1: %d)", err, x0, y0, x1, y1)
 		}
 	})
 }
