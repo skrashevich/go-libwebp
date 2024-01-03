@@ -15,7 +15,7 @@ func DecodeImpl(buf []byte) (image.Image, error) {
 	return common.Decode(buf, makeDecodeImpl(tls), makeFreeImpl(tls))
 }
 
-func EncodeImpl(w io.Writer, m *image.RGBA, quality float32) error {
+func EncodeImpl(w io.Writer, m *image.NRGBA, quality float32) error {
 	tls := libc.NewTLS()
 	defer tls.Close()
 	return common.Encode(w, m, quality, makeEncodeImpl(tls), makeFreeImpl(tls))

@@ -55,16 +55,16 @@ type Encoder struct {
 }
 
 // Encode specified image as webp to w.
-// If the image is RGBA, the pixel buffer will be encoded directly.
-// If the image is not RGBA, it will be converted to RGBA first.
+// If the image is NRGBA, the pixel buffer will be encoded directly.
+// If the image is not NRGBA, it will be converted to NRGBA first.
 func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 	if enc.Quality <= 0.0 || enc.Quality > 1 {
 		enc.Quality = 1.0
 	}
-	if rgba, ok := m.(*image.RGBA); ok {
+	if rgba, ok := m.(*image.NRGBA); ok {
 		return enc.encode(w, rgba)
 	}
-	rgba := image.NewRGBA(m.Bounds())
+	rgba := image.NewNRGBA(m.Bounds())
 	b := m.Bounds()
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
@@ -74,7 +74,7 @@ func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 	return enc.encode(w, rgba)
 }
 
-func (enc *Encoder) encode(w io.Writer, m *image.RGBA) error {
+func (enc *Encoder) encode(w io.Writer, m *image.NRGBA) error {
 	if err := dynamic.Init(); err == nil {
 		return dynamic.EncodeImpl(w, m, enc.Quality)
 	}

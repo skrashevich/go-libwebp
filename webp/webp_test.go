@@ -3,6 +3,7 @@ package webp
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -59,9 +60,28 @@ func assertOutput(t *testing.T, m image.Image, src io.Reader, decode func(io.Rea
 	for xx := outb.Min.X; xx < outb.Max.X; xx++ {
 		for yy := outb.Min.Y; yy < outb.Max.Y; yy++ {
 			if got, want := out.At(xx, yy), m.At(xx, yy); !colorEqual(got, want) {
-				t.Fatalf("color mismatch after lossless encode: Point = (%d, %d) Got = %v Want = %v", xx, yy, got, want)
+				save(t, fmt.Sprintf("got-%d_%d.webp", xx, yy), out)
+				save(t, fmt.Sprintf("want-%d_%d.webp", xx, yy), m)
+				t.Fatalf("color mismatch after lossless encode: Point = (%d, %d) Got = %v Want = %v Bounds= %d", xx, yy, got, want, outb)
 			}
 		}
+	}
+}
+
+func save(t *testing.T, name string, m image.Image) {
+	t.Helper()
+
+	if err := func() error {
+		f, err := os.Create(name)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		defer f.Sync()
+		return Encode(f, m, Lossless())
+
+	}(); err != nil {
+		t.Error(err)
 	}
 }
 
@@ -72,40 +92,65 @@ func colorEqual(left, right color.Color) bool {
 }
 
 func FuzzEncode(f *testing.F) {
-	f.Add(uint16(0), uint16(0), uint16(0), uint16(0), int64(0), float32(0))
-	f.Add(uint16(0), uint16(0), uint16(1), uint16(1), int64(1), float32(1))
-	f.Add(uint16(0), uint16(0), uint16(1), uint16(1), int64(2), float32(0.5))
-	f.Add(uint16(0), uint16(0), uint16(100), uint16(100), int64(3), float32(0.75))
-	f.Add(uint16(0), uint16(0), uint16(100), uint16(100), int64(3), float32(0.9))
-	f.Add(uint16(0), uint16(0), uint16(100), uint16(100), int64(3), float32(0.95))
-	f.Add(uint16(0), uint16(0), uint16(100), uint16(100), int64(3), float32(1.0))
-	f.Fuzz(func(t *testing.T, x0, y0, x1, y1 uint16, seed int64, quality float32) {
+	f.Add(uint16(000), uint16(000), int64(0), float32(0.00), true)
+	f.Add(uint16(000), uint16(000), int64(0), float32(0.00), false)
+	f.Add(uint16(001), uint16(001), int64(1), float32(1.00), true)
+	f.Add(uint16(001), uint16(001), int64(1), float32(1.00), false)
+	f.Add(uint16(001), uint16(001), int64(2), float32(0.50), true)
+	f.Add(uint16(001), uint16(001), int64(2), float32(0.50), false)
+	f.Add(uint16(100), uint16(100), int64(3), float32(0.75), true)
+	f.Add(uint16(100), uint16(100), int64(3), float32(0.75), false)
+	f.Add(uint16(100), uint16(100), int64(3), float32(0.90), true)
+	f.Add(uint16(100), uint16(100), int64(3), float32(0.90), false)
+	f.Add(uint16(100), uint16(100), int64(3), float32(0.95), true)
+	f.Add(uint16(100), uint16(100), int64(3), float32(0.95), false)
+	f.Add(uint16(100), uint16(100), int64(3), float32(1.00), true)
+	f.Add(uint16(100), uint16(100), int64(3), float32(1.00), false)
+
+	f.Fuzz(func(t *testing.T, x1, y1 uint16, seed int64, quality float32, lossless bool) {
+		if quality <= 0 || quality > 1 {
+			t.Skip()
+			return
+		}
+
+		if int(x1) <= 0 || int(y1) <= 0 {
+			t.Skip()
+			return
+		}
+
+		t.Logf("(%d, %d), quality=%.2f, lossless=%v", x1, y1, quality, lossless)
+
 		rng := rand.New(rand.NewSource(seed))
-		m := image.NewNRGBA(image.Rect(int(x0), int(y0), int(x1), int(y1)))
-		for x := x0; x < x1; x += 1 {
-			for y := y0; y < y1; y += 1 {
+
+		m := image.NewNRGBA(image.Rect(0, 0, int(x1), int(y1)))
+
+		for x := uint16(0); x < x1; x += 1 {
+			for y := uint16(0); y < y1; y += 1 {
 				colors := rng.Uint32()
 				r := uint8(colors)
 				g := uint8(colors >> 8)
 				b := uint8(colors >> 16)
 				a := uint8(colors >> 24)
-				m.Set(int(x), int(y), color.RGBA{R: r, G: g, B: b, A: a})
+				m.SetNRGBA(int(x), int(y), color.NRGBA{R: r, G: g, B: b, A: a})
 			}
 		}
-		if quality <= 0 || quality > 1 {
-			t.Skip()
-			return
+
+		opts := []EncodeOption{Quality(quality)}
+
+		if lossless {
+			opts = append(opts, Lossless())
 		}
-		if int(x1)-int(x0) <= 0 || int(y1)-int(y0) <= 0 {
-			t.Skip()
-			return
-		}
+
 		buf := bytes.NewBuffer(nil)
-		if err := Encode(buf, m, Quality(quality)); err != nil {
-			t.Errorf("encode error: %v (x0: %d, y0: %d, x1: %d, y1: %d)", err, x0, y0, x1, y1)
+
+		if err := Encode(buf, m, opts...); err != nil {
+			t.Errorf("encode error: %v", err)
 		}
-		if _, err := Decode(buf); err != nil {
-			t.Errorf("decode error: %v (x0: %d, y0: %d, x1: %d, y1: %d)", err, x0, y0, x1, y1)
+
+		if lossless {
+			// If lossless, we can do a pixel-wise comparison between the original and the
+			// decoded image.
+			assertOutput(t, m, buf, Decode)
 		}
 	})
 }

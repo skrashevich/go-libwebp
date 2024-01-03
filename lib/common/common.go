@@ -18,7 +18,7 @@ type DecoderFunc func(data uintptr, data_size uint64, width uintptr, height uint
 type FreeFunc func(uintptr)
 
 // Encode an RGBA webp image into the provided writer.
-func Encode(w io.Writer, m *image.RGBA, q float32, enc EncodeFunc, free FreeFunc) error {
+func Encode(w io.Writer, m *image.NRGBA, q float32, enc EncodeFunc, free FreeFunc) error {
 	p := runtime.Pinner{}
 	defer p.Unpin()
 
@@ -62,8 +62,8 @@ func Decode(buf []byte, dec DecoderFunc, free FreeFunc) (image.Image, error) {
 	defer p.Unpin()
 
 	data := unsafe.SliceData(buf)
-	width := new(int)
-	height := new(int)
+	width := new(int32)
+	height := new(int32)
 
 	p.Pin(data)
 	p.Pin(width)
@@ -92,7 +92,7 @@ func Decode(buf []byte, dec DecoderFunc, free FreeFunc) (image.Image, error) {
 	// longer reachable. That way we could avoid this copy.
 	copy(pix, unsafe.Slice(samples, size))
 
-	m := &image.RGBA{
+	m := &image.NRGBA{
 		Pix:    pix,
 		Rect:   image.Rectangle{Max: image.Point{X: w, Y: h}},
 		Stride: w * 4,

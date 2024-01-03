@@ -48,7 +48,7 @@ func DecodeImpl(buf []byte) (image.Image, error) {
 	return common.Decode(buf, WebPDecodeRGBA, WebPFree)
 }
 
-func EncodeImpl(w io.Writer, m *image.RGBA, quality float32) error {
+func EncodeImpl(w io.Writer, m *image.NRGBA, quality float32) error {
 	return encodeImpl(w, m, quality)
 }
 
