@@ -6,10 +6,13 @@ import (
 	"image"
 	"image/color"
 	"image/png"
+	"io"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"testing"
+
+	stdwebp "golang.org/x/image/webp"
 )
 
 //go:embed testdata/golden-in.png
@@ -24,17 +27,30 @@ func TestLossless(t *testing.T) {
 		t.Fatalf("decoding image: %v", err)
 	}
 
-	buf := bytes.NewBuffer(nil)
+	buf1 := bytes.NewBuffer(nil)
+	buf2 := bytes.NewBuffer(nil)
 
-	if err := Encode(buf, m, Lossless()); err != nil {
+	if err := Encode(io.MultiWriter(buf1, buf2), m, Lossless()); err != nil {
 		t.Fatalf("encoding webp: %v", err)
 	}
 
-	if err := os.WriteFile(filepath.Join("testdata", "golden-got.webp"), buf.Bytes(), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join("testdata", "golden-got.webp"), buf1.Bytes(), 0o644); err != nil {
 		t.Errorf("writing output png: %v", err)
 	}
 
-	out, err := Decode(buf)
+	t.Run("stdlib webp outupt", func(t *testing.T) {
+		assertOutput(t, m, buf1, stdwebp.Decode)
+	})
+
+	t.Run("transpiled webp output", func(t *testing.T) {
+		assertOutput(t, m, buf2, Decode)
+	})
+}
+
+func assertOutput(t *testing.T, m image.Image, src io.Reader, decode func(io.Reader) (image.Image, error)) {
+	t.Helper()
+
+	out, err := decode(src)
 	if err != nil {
 		t.Fatalf("decoding webp: %v", err)
 	}
@@ -42,11 +58,17 @@ func TestLossless(t *testing.T) {
 	outb := out.Bounds()
 	for xx := outb.Min.X; xx < outb.Max.X; xx++ {
 		for yy := outb.Min.Y; yy < outb.Max.Y; yy++ {
-			if out.At(xx, yy) != m.At(xx, yy) {
-				t.Errorf("color mismatch after lossless encode: (%d, %d)", xx, yy)
+			if got, want := out.At(xx, yy), m.At(xx, yy); !colorEqual(got, want) {
+				t.Fatalf("color mismatch after lossless encode: Point = (%d, %d) Got = %v Want = %v", xx, yy, got, want)
 			}
 		}
 	}
+}
+
+func colorEqual(left, right color.Color) bool {
+	lr, lg, lb, la := left.RGBA()
+	rr, rg, rb, ra := right.RGBA()
+	return lr == rr && lg == rg && lb == rb && la == ra
 }
 
 func FuzzEncode(f *testing.F) {
