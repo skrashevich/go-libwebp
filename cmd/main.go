@@ -75,7 +75,12 @@ func encodeWebp(args []string) error {
 	if err != nil {
 		return fmt.Errorf("decoding src image: %w", err)
 	}
-	if err := webp.Encode(dstf, img); err != nil {
+	opts := []webp.EncodeOption{}
+	opts = append(opts, webp.Quality(float32(quality)))
+	if lossless {
+		opts = append(opts, webp.Lossless())
+	}
+	if err := webp.Encode(dstf, img, opts...); err != nil {
 		return fmt.Errorf("encoding webp: %w", err)
 	}
 	return nil
