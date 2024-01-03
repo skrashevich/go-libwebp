@@ -2,17 +2,20 @@ package webp
 
 import (
 	"fmt"
-	"unsafe"
+	"image"
+	"io"
 
+	"git.sr.ht/~jackmordaunt/go-libwebp/lib/common"
 	"github.com/ebitengine/purego"
 )
 
 var (
 	_libwebp uintptr
 
-	_WebPEncodeLosslessRGBA func(uintptr, uintptr, uintptr, uintptr, uintptr) uintptr
-	_WebPEncodeRGBA         func(uintptr, uintptr, uintptr, uintptr, uintptr, uintptr) uintptr
-	_WebPFree               func(uintptr)
+	WebPEncodeLosslessRGBA func(in uintptr, width int32, height int32, bps int32, out uintptr) (size uint64)
+	WebPEncodeRGBA         func(in uintptr, width int32, height int32, bps int32, quality float32, out uintptr) (size uint64)
+	WebPDecodeRGBA         func(data uintptr, size uint64, width uintptr, height uintptr) uintptr
+	WebPFree               func(ptr uintptr)
 )
 
 func loadLibrary() (uintptr, error) {
@@ -33,55 +36,23 @@ func Init() (err error) {
 		return err
 	}
 
-	_WebPEncodeLosslessRGBA = func() (fn func(uintptr, uintptr, uintptr, uintptr, uintptr) uintptr) {
-		purego.RegisterLibFunc(&fn, _libwebp, "WebPEncodeLosslessRGBA")
-		return
-	}()
-
-	_WebPEncodeRGBA = func() (fn func(uintptr, uintptr, uintptr, uintptr, uintptr, uintptr) uintptr) {
-		purego.RegisterLibFunc(&fn, _libwebp, "WebPEncodeRGBA")
-		return
-	}()
-
-	_WebPFree = func() (fn func(uintptr)) {
-		purego.RegisterLibFunc(&fn, _libwebp, "WebPFree")
-		return
-	}()
+	purego.RegisterLibFunc(&WebPEncodeLosslessRGBA, _libwebp, "WebPEncodeLosslessRGBA")
+	purego.RegisterLibFunc(&WebPEncodeRGBA, _libwebp, "WebPEncodeRGBA")
+	purego.RegisterLibFunc(&WebPDecodeRGBA, _libwebp, "WebPDecodeRGBA")
+	purego.RegisterLibFunc(&WebPFree, _libwebp, "WebPFree")
 
 	return nil
 }
 
-func EncodeImpl(
-	in unsafe.Pointer,
-	w int32,
-	h int32,
-	bps int32,
-	q float32,
-	out unsafe.Pointer,
-) uint64 {
-	Init()
-	var sz uintptr
-	if q >= 1.0 {
-		sz = _WebPEncodeLosslessRGBA(
-			uintptr(in),
-			uintptr(w),
-			uintptr(h),
-			uintptr(bps),
-			uintptr(out),
-		)
-	} else {
-		sz = _WebPEncodeRGBA(
-			uintptr(in),
-			uintptr(w),
-			uintptr(h),
-			uintptr(bps),
-			uintptr(q),
-			uintptr(out),
-		)
-	}
-	return uint64(sz)
+func DecodeImpl(buf []byte) (image.Image, error) {
+	return common.Decode(buf, WebPDecodeRGBA, WebPFree)
 }
 
-func FreeImpl(ptr unsafe.Pointer) {
-	_WebPFree(uintptr(ptr))
+func EncodeImpl(w io.Writer, m *image.RGBA, quality float32) error {
+	return encodeImpl(w, m, quality)
+}
+
+// wrappedLossless drops the quality param and does a lossless encode.
+func wrappedLossless(in uintptr, w int32, h int32, bps int32, _ float32, out uintptr) uint64 {
+	return WebPEncodeLosslessRGBA(in, w, h, bps, out)
 }

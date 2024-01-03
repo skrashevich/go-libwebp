@@ -8,9 +8,6 @@ import (
 
 const libraryName = "libwebp.dylib"
 
-//go:embed blobs/libwebp.dylib
-var libraryData []byte
-
 func dlopen(name string) (uintptr, error) {
-	return purego.Dlopen(libraryName, purego.RTLD_NOW|purego.RTLD_GLOBAL)
+	return purego.Dlopen(libraryName, purego.RTLD_LAZY|purego.RTLD_GLOBAL)
 }
