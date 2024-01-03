@@ -11,9 +11,6 @@ This package provides several options for interaction with libwebp:
 2. dynamic libraries  (purego)
 
 Each option is called a "backend".
-In order to use a given backend, it must be available at build time, and selected at runtime.
-To activate all backends use the "all" build tag.
-Otherwise, to activate a single backend, use the tag named like the package: "transpiled", "dynamic".
 
 Package dynamic provides a dynamic binding to libwebp. This requires the consumer to acquire the shared objects.
 Package transpiled provides a Go translation of the libwebp source. This typically executes slower.
@@ -57,9 +54,8 @@ that will build amd64 shared-objects and place them in `lib/dynamic/webp/blobs` 
 ## Testing
 
 Go side testing involves a lossless compression test; byte-wise comparison against a golden test image.
-In addition, there is a fuzz harness. The harness is built for all backends, however it's most effective
-for the transpiled code, since the Go runtime can actually see into it, and because the transpiler is
-still itself experimental.
+In addition, there is a fuzz harness that executes against the transpiled code - encoding and subsequently
+decoding images of random size and color.
 
 ## Features
 
