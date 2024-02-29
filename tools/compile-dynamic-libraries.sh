@@ -23,7 +23,7 @@ prepare $BUILD_LINUX
   cd $BUILD_LINUX                                        
   cmake -DBUILD_SHARED_LIBS="ON" ../                     
   make webp                                              
-  cp libwebp.so.$VERSION ../../lib/dynamic/blobs/libwebp.so 
+  cp libwebp.so.$VERSION ../../lib/dynamic/webp/blobs/libwebp_amd64.so 
 )
 
 # Windows with zig.
@@ -34,7 +34,7 @@ prepare $BUILD_WINDOWS
   cd $BUILD_WINDOWS                                                                                           
   cmake -DBUILD_SHARED_LIBS="ON" -DCMAKE_TOOLCHAIN_FILE=../../tools/cross-windows.cmake ../ 
   make webp                                                                                                   
-  cp libwebp.dll ../../lib/dynamic/blobs/libwebp.dll                                                          
+  cp libwebp.dll ../../lib/dynamic/webp/blobs/libwebp_amd64.dll                                                          
 )
 
 # macOS with osxcross.
@@ -45,6 +45,6 @@ prepare $BUILD_MACOS
   cd $BUILD_MACOS                                                                                         
   cmake -DBUILD_SHARED_LIBS="ON" -DCMAKE_TOOLCHAIN_FILE=../../tools/cross-macos.cmake ../ 
   make webp                                                                                               
-  cp libwebp.$VERSION.dylib ../../lib/dynamic/blobs/libwebp.dylib                                         
+  cp libwebp.$VERSION.dylib ../../lib/dynamic/webp/blobs/libwebp_amd64.dylib                                         
 )
 
