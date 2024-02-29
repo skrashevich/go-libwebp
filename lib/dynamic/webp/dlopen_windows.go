@@ -1,12 +1,8 @@
+//go:build windows
+
 package webp
 
-import (
-	_ "embed"
-
-	"golang.org/x/sys/windows"
-)
-
-const libraryName = "libwebp.dll"
+import "golang.org/x/sys/windows"
 
 func dlopen(name string) (uintptr, error) {
 	dll, err := windows.LoadDLL(libraryName)
