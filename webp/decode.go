@@ -5,6 +5,7 @@ import (
 	"image"
 	"io"
 
+	dynamic "git.sr.ht/~jackmordaunt/go-libwebp/lib/dynamic/webp"
 	transpiled "git.sr.ht/~jackmordaunt/go-libwebp/lib/transpiled/webp"
 	stdwebp "golang.org/x/image/webp"
 )
@@ -14,6 +15,9 @@ func Decode(r io.Reader) (image.Image, error) {
 	by, err := io.ReadAll(r)
 	if err != nil {
 		return nil, fmt.Errorf("buffering data: %w", err)
+	}
+	if err := dynamic.Init(); err == nil {
+		return dynamic.DecodeImpl(by)
 	}
 	return transpiled.DecodeImpl(by)
 }
