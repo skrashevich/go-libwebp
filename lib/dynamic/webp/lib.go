@@ -33,7 +33,7 @@ func genericLibraryName() string {
 func loadLibrary() (uintptr, error) {
 	handle, err := dlopen(libraryName)
 	if err != nil {
-		handle, err = dlopen(genericLibraryName())
+		return dlopen(genericLibraryName())
 	}
 	return handle, err
 }
