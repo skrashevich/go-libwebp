@@ -48,6 +48,37 @@ func TestLossless(t *testing.T) {
 	})
 }
 
+func BenchmarkDecode(b *testing.B) {
+	b.Run("stdwebp", func(b *testing.B) {
+		for ii := 0; ii < b.N; ii++ {
+			r := bytes.NewReader(goldenOut)
+			m, err := stdwebp.Decode(r)
+			if err != nil {
+				b.Fatalf("error: %v", err)
+			}
+			_ = m
+		}
+	})
+	b.Run("transpiled", func(b *testing.B) {
+		for ii := 0; ii < b.N; ii++ {
+			m, err := decodeTranspiled(goldenOut)
+			if err != nil {
+				b.Fatalf("error: %v", err)
+			}
+			_ = m
+		}
+	})
+	b.Run("dynamic", func(b *testing.B) {
+		for ii := 0; ii < b.N; ii++ {
+			m, err := decodeDynamic(goldenOut)
+			if err != nil {
+				b.Fatalf("error: %v", err)
+			}
+			_ = m
+		}
+	})
+}
+
 func assertOutput(t *testing.T, m image.Image, src io.Reader, decode func(io.Reader) (image.Image, error)) {
 	t.Helper()
 
