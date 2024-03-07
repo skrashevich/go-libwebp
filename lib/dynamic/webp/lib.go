@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"io"
+	"runtime"
 
 	"git.sr.ht/~jackmordaunt/go-libwebp/lib/common"
 	"github.com/ebitengine/purego"
@@ -18,12 +19,23 @@ var (
 	WebPFree               func(ptr uintptr)
 )
 
+func genericLibraryName() string {
+	switch runtime.GOOS {
+	case "windows":
+		return "libwebp.dll"
+	case "darwin":
+		return "libwebp.dylib"
+	default:
+		return "libwebp.so"
+	}
+}
+
 func loadLibrary() (uintptr, error) {
 	handle, err := dlopen(libraryName)
 	if err != nil {
-		return 0, fmt.Errorf("loading library: %w", err)
+		handle, err = dlopen(genericLibraryName())
 	}
-	return handle, nil
+	return handle, err
 }
 
 func Init() (err error) {
@@ -33,7 +45,7 @@ func Init() (err error) {
 
 	_libwebp, err = loadLibrary()
 	if err != nil {
-		return err
+		return fmt.Errorf("loading library: %w", err)
 	}
 
 	purego.RegisterLibFunc(&WebPEncodeLosslessRGBA, _libwebp, "WebPEncodeLosslessRGBA")
