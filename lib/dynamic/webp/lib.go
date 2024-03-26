@@ -57,6 +57,9 @@ func Init() (err error) {
 }
 
 func DecodeImpl(buf []byte) (image.Image, error) {
+	if WebPDecodeRGBA == nil || WebPFree == nil {
+		return nil, fmt.Errorf("functions not initialized")
+	}
 	return common.Decode(buf, WebPDecodeRGBA, WebPFree)
 }
 
