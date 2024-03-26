@@ -49,9 +49,24 @@ func Init() (err error) {
 	}
 
 	purego.RegisterLibFunc(&WebPEncodeLosslessRGBA, _libwebp, "WebPEncodeLosslessRGBA")
+	if WebPEncodeLosslessRGBA == nil {
+		return fmt.Errorf("failed to initialize function: WebPEncodeLosslessRGBA")
+	}
+
 	purego.RegisterLibFunc(&WebPEncodeRGBA, _libwebp, "WebPEncodeRGBA")
+	if WebPEncodeRGBA == nil {
+		return fmt.Errorf("failed to initialize function: WebPEncodeRGBA")
+	}
+
 	purego.RegisterLibFunc(&WebPDecodeRGBA, _libwebp, "WebPDecodeRGBA")
+	if WebPDecodeRGBA == nil {
+		return fmt.Errorf("failed to initialize function: WebPDecodeRGBA")
+	}
+
 	purego.RegisterLibFunc(&WebPFree, _libwebp, "WebPFree")
+	if WebPFree == nil {
+		return fmt.Errorf("failed to initialize function: WebPFree")
+	}
 
 	return nil
 }
