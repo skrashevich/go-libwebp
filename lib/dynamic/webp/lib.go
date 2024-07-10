@@ -79,7 +79,13 @@ func DecodeImpl(buf []byte) (image.Image, error) {
 }
 
 func EncodeImpl(w io.Writer, m *image.NRGBA, quality float32) error {
-	return encodeImpl(w, m, quality)
+	if WebPEncodeRGBA == nil || WebPFree == nil {
+		return fmt.Errorf("functions not initialized")
+	}
+	if quality >= 1.0 {
+		return common.Encode(w, m, quality, wrappedLossless, WebPFree)
+	}
+	return common.Encode(w, m, quality, WebPEncodeRGBA, WebPFree)
 }
 
 // wrappedLossless drops the quality param and does a lossless encode.
