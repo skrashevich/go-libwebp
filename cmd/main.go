@@ -12,7 +12,7 @@ import (
 
 	_ "image/png"
 
-	"git.sr.ht/~jackmordaunt/go-libwebp/webp"
+	"github.com/skrashevich/go-libwebp/webp"
 )
 
 func main() {

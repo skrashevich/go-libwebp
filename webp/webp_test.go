@@ -68,15 +68,6 @@ func BenchmarkDecode(b *testing.B) {
 			_ = m
 		}
 	})
-	b.Run("dynamic", func(b *testing.B) {
-		for ii := 0; ii < b.N; ii++ {
-			m, err := decodeDynamic(goldenOut)
-			if err != nil {
-				b.Fatalf("error: %v", err)
-			}
-			_ = m
-		}
-	})
 }
 
 func assertOutput(t *testing.T, m image.Image, src io.Reader, decode func(io.Reader) (image.Image, error)) {

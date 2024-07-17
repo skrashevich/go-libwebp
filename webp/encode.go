@@ -4,8 +4,7 @@ import (
 	"image"
 	"io"
 
-	dynamic "git.sr.ht/~jackmordaunt/go-libwebp/lib/dynamic/webp"
-	transpiled "git.sr.ht/~jackmordaunt/go-libwebp/lib/transpiled/webp"
+	transpiled "github.com/skrashevich/go-libwebp/lib/transpiled/webp"
 )
 
 // Encode an image into webp with default settings.
@@ -75,8 +74,6 @@ func (enc *Encoder) Encode(w io.Writer, m image.Image) error {
 }
 
 func (enc *Encoder) encode(w io.Writer, m *image.NRGBA) error {
-	if err := dynamic.Init(); err == nil {
-		return dynamic.EncodeImpl(w, m, enc.Quality)
-	}
+
 	return transpiled.EncodeImpl(w, m, enc.Quality)
 }

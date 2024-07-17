@@ -4,7 +4,7 @@ import (
 	"image"
 	"io"
 
-	"git.sr.ht/~jackmordaunt/go-libwebp/lib/common"
+	"github.com/skrashevich/go-libwebp/lib/common"
 	"modernc.org/libc"
 )
 
